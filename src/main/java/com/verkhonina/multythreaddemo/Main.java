@@ -5,7 +5,13 @@ public class Main {
     public static void main(String[] args) {
         Foo f = new Foo();
 
-        Thread a = new Thread(() -> f.first(() -> System.out.print("first")));
+        Thread a = new Thread(() -> {
+            try {
+                f.first(() -> System.out.print("first"));
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        });
 
         Thread b = new Thread(() -> {
             try {
