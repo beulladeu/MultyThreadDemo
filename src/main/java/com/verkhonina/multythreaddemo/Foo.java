@@ -4,31 +4,30 @@ import java.util.concurrent.Semaphore;
 
 public class Foo {
 
-    private final Semaphore smp1 = new Semaphore(1);
-    private final Semaphore smp2 = new Semaphore(1);
+    private final Semaphore semaphoreBetweenFirstAndSecond = new Semaphore(0);
+    private final Semaphore semaphoreBetweenSecondAndThird = new Semaphore(0);
 
-    Foo() {
+    public void first(Runnable r) {
+        r.run();
+        semaphoreBetweenFirstAndSecond.release();
+    }
+
+    public void second(Runnable r) {
         try {
-            smp1.acquire();
-            smp2.acquire();
+            semaphoreBetweenFirstAndSecond.acquire();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-
-    public void first(Runnable r) throws InterruptedException {
         r.run();
-        smp1.release();
+        semaphoreBetweenSecondAndThird.release();
     }
 
-    public void second(Runnable r) throws InterruptedException {
-        smp1.acquire();
-        r.run();
-        smp2.release();
-    }
-
-    public void third(Runnable r) throws InterruptedException {
-        smp2.acquire();
+    public void third(Runnable r) {
+        try {
+            semaphoreBetweenSecondAndThird.acquire();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         r.run();
     }
 }
